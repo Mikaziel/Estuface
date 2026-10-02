@@ -66,7 +66,7 @@ Estuface
 │   ├── dosadoramain.cpp
 │   ├── emojis.cpp
 │   └── esp32-ph.cpp
-└── testes2
+└── testes_individuais2
     ├── 1-dosadora.cpp
     ├── 2-dht11ertc.cpp
     ├── 3-tempagua.cpp
@@ -80,13 +80,13 @@ A pasta `src` contém o código principal que será compilado e enviado para o E
 
 A pasta `testes_individuais` mantém códigos utilizados em etapas anteriores do projeto, servindo como histórico dos testes feitos durante o desenvolvimento.
 
-A pasta `testes2` contém os testes mais recentes e corrigidos, usando a nomenclatura atual dos pinos da placa, como `D4`, `D23`, `D27`, `D14` e `D18`.
+A pasta `testes_individuais2` contém os testes mais recentes e corrigidos, usando a nomenclatura atual dos pinos da placa, como `D4`, `D23`, `D27`, `D14` e `D18`.
 
 ---
 
 ## Testes atuais
 
-Os testes mais recentes estão na pasta `testes2`.
+Os testes mais recentes estão na pasta `testes_individuais2`.
 
 | Arquivo | Função |
 | ------- | ------ |
