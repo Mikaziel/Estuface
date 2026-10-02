@@ -504,6 +504,6 @@ Este projeto está em desenvolvimento e passa por testes individuais e integraç
 
 A pasta `testes_individuais` mantém códigos utilizados em etapas anteriores do projeto, permitindo consultar versões anteriores e entender a evolução do sistema.
 
-A pasta `testes2` concentra os testes mais recentes feitos durante a reorganização atual do projeto.
+A pasta `testes_individuais2` concentra os testes mais recentes feitos durante a reorganização atual do projeto.
 
 O README atual é uma versão intermediária da documentação. A versão final deve ser revisada após a integração completa dos sensores, boias, relés e atuadores reais.
