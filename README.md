@@ -4,30 +4,101 @@ Projeto de automação para cultivo hidropônico NFT utilizando ESP32, sensores 
 
 O objetivo do sistema é monitorar variáveis importantes do cultivo, como temperatura e umidade do ambiente, temperatura da água e condutividade/TDS da solução, além de controlar bomba principal, ventoinhas e uma bomba dosadora peristáltica por temporizador.
 
+---
+
 ## Plataforma utilizada
 
 - VS Code
 - PlatformIO
-- ESP32 NodeMCU-32S / ESP32 de 38 pinos
+- ESP32 DevKit V1 / ESP32 compatível com `esp32dev`
 - Framework Arduino
 - Monitor Serial em 115200 baud
 
-## Estrutura do projeto
+---
+
+## Observação sobre a nomenclatura dos pinos
+
+Nas versões anteriores da documentação, os pinos eram descritos usando a nomenclatura `GPIO`, como `GPIO4`, `GPIO23` e `GPIO34`.
+
+A partir desta etapa, a documentação passa a usar principalmente os nomes impressos na placa ESP32, como `D4`, `D23` e `D34`.
+
+No código, os pinos continuam sendo declarados pelo número correspondente ao nome da placa:
+
+```cpp
+#define DHT_PIN 4       // D4
+#define DS18B20_PIN 23  // D23
+#define TDS_PIN 34      // D34
+```
+
+---
+
+## Estrutura atual do projeto
 
 ```txt
 Estuface
 ├── include
+│   └── README
 ├── lib
+│   └── README
 ├── platformio.ini
+├── README.md
 ├── src
 │   └── main.cpp
 ├── test
-└── testes_individuais
+│   └── README
+├── testes_individuais
+│   ├── 1-dht11.cpp
+│   ├── 10-x88.cpp
+│   ├── 100-x88xy7.cpp
+│   ├── 101-temporizador.cpp
+│   ├── 11-xy7.cpp
+│   ├── 12-x-bombarele.cpp
+│   ├── 13-xy-bombaventoinha.cpp
+│   ├── 2-rtc.cpp
+│   ├── 3-tempagua.cpp
+│   ├── 4-1&2.cpp
+│   ├── 5-4&3.cpp
+│   ├── 6-sensortds.cpp
+│   ├── 7-5&6.cpp
+│   ├── 8-sensorboia.cpp
+│   ├── 9-x8.cpp
+│   ├── dosadora.cpp
+│   ├── dosadoramain.cpp
+│   ├── emojis.cpp
+│   └── esp32-ph.cpp
+└── testes2
+    ├── 1-dosadora.cpp
+    ├── 2-dht11ertc.cpp
+    ├── 3-tempagua.cpp
+    ├── 4-boiaaviso.cpp
+    ├── 5-boiacritica.cpp
+    ├── 6-4e5.cpp
+    └── teste1.cpp
 ```
 
 A pasta `src` contém o código principal que será compilado e enviado para o ESP32.
 
-A pasta `testes_individuais` armazena códigos separados utilizados durante os testes individuais de sensores, módulos e atuadores.
+A pasta `testes_individuais` mantém códigos utilizados em etapas anteriores do projeto, servindo como histórico dos testes feitos durante o desenvolvimento.
+
+A pasta `testes2` contém os testes mais recentes e corrigidos, usando a nomenclatura atual dos pinos da placa, como `D4`, `D23`, `D27`, `D14` e `D18`.
+
+---
+
+## Testes atuais
+
+Os testes mais recentes estão na pasta `testes2`.
+
+| Arquivo | Função |
+| ------- | ------ |
+| `1-dosadora.cpp` | Testa a bomba dosadora peristáltica no D18 |
+| `2-dht11ertc.cpp` | Testa DHT11 no D4 e RTC DS3231 em D25/D26 |
+| `3-tempagua.cpp` | Testa o DS18B20 no D23 |
+| `4-boiaaviso.cpp` | Testa a boia de aviso no D27 |
+| `5-boiacritica.cpp` | Testa a boia crítica no D14 |
+| `6-4e5.cpp` | Testa as duas boias simulando a bomba principal |
+| `teste1.cpp` | Teste auxiliar da nova placa ESP32 |
+
+---
 
 ## Sensores e módulos trabalhados
 
@@ -37,33 +108,40 @@ A pasta `testes_individuais` armazena códigos separados utilizados durante os t
 | RTC DS3231     | Mantém data e hora em tempo real       | Testado  |
 | DS18B20        | Mede a temperatura da água             | Testado  |
 | TDS/EC         | Mede condutividade/TDS da água         | Testado  |
-| Sensor de boia | Monitora o nível da água               | Testado  |
+| Boia de aviso  | Indica nível abaixo do ideal           | Testado  |
+| Boia crítica   | Indica nível crítico                   | Testado  |
 | Sensor de pH   | Mede o pH da água/solução nutritiva    | Pendente |
+
+---
 
 ## Pinos dos sensores
 
-| Sensor/Módulo | Pino do sensor | Pino no ESP32 |
+| Sensor/Módulo | Pino do sensor | Pino na placa |
 | ------------- | -------------- | ------------- |
-| DHT11         | DATA           | GPIO4         |
-| RTC DS3231    | SDA            | GPIO25        |
-| RTC DS3231    | SCL            | GPIO26        |
-| DS18B20       | DATA           | GPIO23        |
-| TDS/EC        | A / Analógico  | GPIO34        |
-| Boia de aviso | Sinal          | GPIO27        |
-| Boia crítica  | Sinal          | GPIO14        |
-| Sensor de pH  | A / Analógico  | GPIO35        |
+| DHT11         | DATA           | D4            |
+| RTC DS3231    | SDA            | D25           |
+| RTC DS3231    | SCL            | D26           |
+| DS18B20       | DATA           | D23           |
+| TDS/EC        | A / Analógico  | D34           |
+| Boia de aviso | Sinal          | D27           |
+| Boia crítica  | Sinal          | D14           |
+| Sensor de pH  | A / Analógico  | D35           |
+
+---
 
 ## Pinos dos atuadores
 
-| Atuador               | Pino no ESP32 | Canal do relé |
+| Atuador               | Pino na placa | Canal do relé |
 | --------------------- | ------------- | ------------- |
-| Bomba principal       | GPIO16        | IN1           |
-| Ventoinhas            | GPIO17        | IN2           |
-| Dosadora peristáltica | GPIO18        | IN3           |
+| Bomba principal       | D32           | IN1           |
+| Ventoinhas            | D33           | IN2           |
+| Dosadora peristáltica | D18           | IN3           |
 
 Inicialmente estavam previstos pinos para três bombas dosadoras peristálticas, porém no estágio atual do projeto apenas uma dosadora está sendo utilizada.
 
-A dosadora atual funciona como um temporizador para dosagem de água em uma mini estufa de germinação.
+A dosadora atual funciona como temporizador para dosagem em uma mini estufa de germinação.
+
+---
 
 ## Ligações principais
 
@@ -73,7 +151,9 @@ A dosadora atual funciona como um temporizador para dosagem de água em uma mini
 | ------------- | ------- |
 | VCC           | 3V3     |
 | GND           | GND     |
-| DATA          | GPIO4   |
+| DATA          | D4      |
+
+---
 
 ### RTC DS3231
 
@@ -81,10 +161,12 @@ A dosadora atual funciona como um temporizador para dosagem de água em uma mini
 | ----------- | ------- |
 | VCC         | 3V3     |
 | GND         | GND     |
-| SDA         | GPIO25  |
-| SCL         | GPIO26  |
+| SDA         | D25     |
+| SCL         | D26     |
 
-O RTC foi movido dos pinos padrão `GPIO21/GPIO22` para `GPIO25/GPIO26`, liberando o `GPIO21` para uso futuro em atuadores.
+O RTC foi movido dos pinos padrão D21/D22 para D25/D26, liberando D21 para uso futuro.
+
+---
 
 ### DS18B20
 
@@ -92,7 +174,7 @@ O RTC foi movido dos pinos padrão `GPIO21/GPIO22` para `GPIO25/GPIO26`, liberan
 | -------------- | ------- |
 | Vermelho       | 3V3     |
 | Preto          | GND     |
-| Amarelo        | GPIO23  |
+| Amarelo        | D23     |
 
 O DS18B20 utiliza um resistor pull-up entre o fio de dados e o 3V3.
 
@@ -113,8 +195,12 @@ Ligação do resistor:
 Ou seja:
 
 ```txt
-Fio vermelho / 3V3 ---- resistor ---- fio amarelo / DATA / GPIO23
+3V3 / fio vermelho ---- resistor ---- fio amarelo / DATA / D23
 ```
+
+Durante os testes, foi identificado um problema de mau contato/fiação nas pontas do sensor. Após cortar as pontas dos fios e refazer a soldagem, o sensor passou a funcionar corretamente.
+
+---
 
 ### TDS/EC
 
@@ -122,32 +208,49 @@ Fio vermelho / 3V3 ---- resistor ---- fio amarelo / DATA / GPIO23
 | ------------------ | ------- |
 | +                  | 3V3     |
 | -                  | GND     |
-| A                  | GPIO34  |
+| A                  | D34     |
 
-O sensor TDS/EC é analógico e utiliza o pino `GPIO34`, que é adequado para leitura analógica no ESP32.
+O sensor TDS/EC é analógico e utiliza o pino D34 para leitura.
+
+Apenas a sonda deve entrar em contato com a água. A placa do módulo TDS não deve ser molhada.
+
+---
 
 ### Boias
 
-| Boia          | Pino   | Função                       |
-| ------------- | ------ | ---------------------------- |
-| Boia de aviso | GPIO27 | Indica nível abaixo do ideal |
-| Boia crítica  | GPIO14 | Indica nível crítico         |
+| Boia          | Pino na placa | Função                       |
+| ------------- | ------------- | ---------------------------- |
+| Boia de aviso | D27           | Indica nível abaixo do ideal |
+| Boia crítica  | D14           | Indica nível crítico         |
 
-A boia de aviso segue a lógica:
+As boias são usadas com `INPUT_PULLUP`.
 
-```cpp
-HIGH = nível OK
-LOW  = nível abaixo do ideal
+Ligação básica de cada boia:
+
+```txt
+Um fio da boia -> GND
+Outro fio      -> pino de sinal
 ```
 
-A boia crítica está invertida:
+### Lógica da boia de aviso
 
-```cpp
-LOW  = nível OK
-HIGH = nível crítico
+```txt
+1 = nível OK
+0 = nível abaixando
+```
+
+Quando a boia de aviso indica nível abaixando, o sistema exibe um alerta, mas a bomba principal continua funcionando se a boia crítica ainda indicar nível seguro.
+
+### Lógica da boia crítica
+
+```txt
+0 = nível seguro
+1 = nível crítico
 ```
 
 Quando o nível crítico é detectado, a bomba principal é desligada para evitar funcionamento seco.
+
+---
 
 ## Bibliotecas utilizadas
 
@@ -162,6 +265,8 @@ paulstoffregen/OneWire
 milesburton/DallasTemperature
 ```
 
+---
+
 ## Função das bibliotecas
 
 | Biblioteca                | Função                                            |
@@ -173,16 +278,22 @@ milesburton/DallasTemperature
 | `OneWire`                 | Comunicação OneWire utilizada pelo DS18B20        |
 | `DallasTemperature`       | Leitura de temperatura do DS18B20                 |
 
+---
+
 ## Configuração do `platformio.ini`
 
-Exemplo de configuração utilizada no projeto:
+Configuração utilizada no projeto:
 
 ```ini
-[env:nodemcu-32s]
+[platformio]
+default_envs = esp32
+
+[env:esp32]
 platform = espressif32
-board = nodemcu-32s
+board = esp32dev
 framework = arduino
 monitor_speed = 115200
+upload_speed = 115200
 
 lib_deps =
     adafruit/RTClib
@@ -192,6 +303,8 @@ lib_deps =
     paulstoffregen/OneWire
     milesburton/DallasTemperature
 ```
+
+---
 
 ## Lógica dos relés
 
@@ -213,42 +326,57 @@ HIGH = relé desligado
 
 Antes de configurar os pinos como saída, o código define os relés como desligados para evitar acionamentos indesejados ao iniciar o ESP32.
 
+---
+
 ## Bomba principal
 
-A bomba principal é controlada pelas boias de nível.
+A bomba principal será controlada pelas boias de nível.
 
-Pino utilizado:
+Pino previsto:
 
 ```cpp
-#define RELE_BOMBA 16
+#define RELE_BOMBA 32 // D32
 ```
 
-A lógica é:
+Lógica:
 
 - Se a boia crítica indicar nível crítico, a bomba principal é desligada.
 - Se o nível estiver seguro, a bomba principal permanece ligada.
 - Se a boia de aviso indicar nível abaixo do ideal, o sistema exibe um alerta, mas mantém a bomba ligada caso a boia crítica ainda esteja em nível seguro.
 
-## Ventoinhas
+Durante os testes atuais, a bomba principal foi simulada pelo LED interno do ESP32.
 
-As ventoinhas são mantidas continuamente ligadas.
+Lógica validada:
 
-Pino utilizado:
-
-```cpp
-#define RELE_VENTOINHA 17
+```txt
+Aviso: 1 | Critica: 0 -> bomba funcionando / nível OK
+Aviso: 0 | Critica: 0 -> bomba funcionando / aviso de nível abaixando
+Aviso: 1 | Critica: 1 -> bomba desligada / nível crítico
+Aviso: 0 | Critica: 1 -> bomba desligada / nível crítico
 ```
 
-No `setup()`, o sistema liga as ventoinhas automaticamente.
+---
 
-Durante o `loop()`, o código verifica se a ventoinha permanece ligada. Caso esteja desligada, ela é religada.
+## Ventoinhas
+
+As ventoinhas serão mantidas continuamente ligadas.
+
+Pino previsto:
+
+```cpp
+#define RELE_VENTOINHA 33 // D33
+```
+
+No funcionamento integrado, as ventoinhas devem ser ligadas automaticamente no `setup()` e permanecer ligadas durante a execução do sistema.
+
+---
 
 ## Dosadora peristáltica
 
 A bomba dosadora peristáltica está conectada ao relé no pino:
 
 ```cpp
-#define RELE_DOSADORA 18
+#define RELE_DOSADORA 18 // D18
 ```
 
 No estágio atual, apenas uma dosadora está sendo utilizada.
@@ -271,6 +399,10 @@ A lógica atual é:
 
 O controle é feito usando `millis()`, evitando depender de `delay()` para a contagem principal.
 
+No código de teste, o LED interno do ESP32 também é usado para indicar quando a dosadora está ligada.
+
+---
+
 ## Sensores de água
 
 O sistema trabalha com dois sensores principais relacionados à água:
@@ -280,13 +412,15 @@ O sistema trabalha com dois sensores principais relacionados à água:
 | DS18B20 | Mede a temperatura da água       |
 | TDS/EC  | Mede a condutividade/TDS da água |
 
-A leitura do DS18B20 também é utilizada para compensação da leitura do TDS.
+A leitura do DS18B20 também será utilizada para compensação da leitura do TDS.
 
-Caso o DS18B20 falhe, o código utiliza `25 °C` como temperatura padrão para o cálculo aproximado do TDS.
+Caso o DS18B20 falhe, o código pode utilizar `25 °C` como temperatura padrão para o cálculo aproximado do TDS.
+
+---
 
 ## Cálculo aproximado do TDS
 
-O sensor TDS fornece uma leitura analógica pelo pino `GPIO34`.
+O sensor TDS fornece uma leitura analógica pelo pino D34.
 
 O ESP32 lê esse valor por ADC e converte para tensão:
 
@@ -313,6 +447,8 @@ float tds =
 
 O valor ainda precisa de calibração para ser usado com maior precisão.
 
+---
+
 ## Status atual do projeto
 
 Até o momento, foram realizados testes com:
@@ -321,29 +457,35 @@ Até o momento, foram realizados testes com:
 - RTC DS3231
 - DS18B20
 - TDS/EC
-- Sensor de boia
-- Módulo relé
-- Bomba principal
-- Ventoinhas
+- Boia de aviso
+- Boia crítica
+- Simulação da bomba principal com as duas boias
 - Dosadora peristáltica
 - Temporizador com `millis()`
-- Integração de sensores e atuadores no código principal
+
+---
 
 ## Estado atual da montagem
 
-No estágio atual, o sistema possui:
+No estágio atual, o sistema possui testes individuais funcionais para:
 
 - Monitoramento ambiental com DHT11
 - Relógio em tempo real com RTC DS3231
 - Medição da temperatura da água com DS18B20
 - Medição aproximada de TDS/condutividade
 - Controle de nível por boias
-- Bomba principal controlada por nível de água
-- Ventoinhas ligadas continuamente
+- Simulação da bomba principal por lógica de nível
 - Uma bomba dosadora peristáltica controlada por temporizador
+
+---
 
 ## Próximos passos
 
+- Testar o relé da bomba principal no D32
+- Testar o relé das ventoinhas no D33
+- Integrar boias com o relé real da bomba principal
+- Integrar sensores de água: DS18B20 + TDS/EC
+- Integrar sensores ambientais: DHT11 + RTC DS3231
 - Testar o sensor de pH
 - Calibrar o sensor de pH
 - Melhorar a calibração do sensor TDS/EC
@@ -354,8 +496,14 @@ No estágio atual, o sistema possui:
 - Avaliar uso futuro das outras duas dosadoras peristálticas
 - Melhorar a segurança elétrica e a organização dos cabos
 
+---
+
 ## Observações
 
 Este projeto está em desenvolvimento e passa por testes individuais e integrações graduais.
 
-A pasta `testes_individuais` mantém os códigos usados em cada etapa de teste, permitindo consultar versões anteriores e entender a evolução do sistema.
+A pasta `testes_individuais` mantém códigos utilizados em etapas anteriores do projeto, permitindo consultar versões anteriores e entender a evolução do sistema.
+
+A pasta `testes2` concentra os testes mais recentes feitos durante a reorganização atual do projeto.
+
+O README atual é uma versão intermediária da documentação. A versão final deve ser revisada após a integração completa dos sensores, boias, relés e atuadores reais.

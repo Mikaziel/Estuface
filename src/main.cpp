@@ -1,31 +1,94 @@
 #include <Arduino.h>
 
-#define RELE_IN1 16 // RX2 na placa ESP32 micro USB
+// -------------------- PINOS --------------------
+#define BOIA_AVISO 27
+#define BOIA_CRITICA 14
+#define LED_BOMBA 2
 
-#define RELE_LIGADO LOW
-#define RELE_DESLIGADO HIGH
+// -------------------- LÓGICA DAS BOIAS --------------------
+// Boia aviso:
+// 0 = nível abaixando
+// 1 = nível OK
+#define AVISO_NIVEL_BAIXO LOW
+#define AVISO_NIVEL_OK HIGH
+
+// Boia crítica:
+// Pelo seu teste, caída está lendo 1.
+// Então:
+// 1 = nível crítico / bomba desliga
+// 0 = nível ainda seguro / bomba funciona
+#define CRITICA_NIVEL_CRITICO HIGH
+#define CRITICA_NIVEL_OK LOW
+
+// -------------------- VARIÁVEIS --------------------
+int ultimoAviso = -1;
+int ultimaCritica = -1;
+int ultimoEstadoBomba = -1;
 
 void setup()
 {
   Serial.begin(115200);
   delay(1000);
 
-  pinMode(RELE_IN1, OUTPUT);
-  digitalWrite(RELE_IN1, RELE_DESLIGADO);
+  pinMode(BOIA_AVISO, INPUT_PULLUP);
+  pinMode(BOIA_CRITICA, INPUT_PULLUP);
+  pinMode(LED_BOMBA, OUTPUT);
 
-  Serial.println();
-  Serial.println("Teste do rele IN1");
-  Serial.println("Pino usado: GPIO16 / RX2");
-  Serial.println("Relé inicia desligado.");
+  digitalWrite(LED_BOMBA, LOW);
+
+  Serial.println("Teste conjunto - boia aviso + boia critica");
 }
 
 void loop()
 {
-  Serial.println("IN1 LIGADO");
-  digitalWrite(RELE_IN1, RELE_LIGADO);
-  delay(10000);
+  int aviso = digitalRead(BOIA_AVISO);
+  int critica = digitalRead(BOIA_CRITICA);
 
-  Serial.println("IN1 DESLIGADO");
-  digitalWrite(RELE_IN1, RELE_DESLIGADO);
-  delay(10000);
+  int bombaLigada;
+
+  // -------------------- LÓGICA PRINCIPAL --------------------
+  if (critica == CRITICA_NIVEL_CRITICO)
+  {
+    bombaLigada = 0;
+    digitalWrite(LED_BOMBA, LOW);
+  }
+  else
+  {
+    bombaLigada = 1;
+    digitalWrite(LED_BOMBA, HIGH);
+  }
+
+  // -------------------- PRINTA SOMENTE QUANDO MUDA --------------------
+  if (aviso != ultimoAviso || critica != ultimaCritica || bombaLigada != ultimoEstadoBomba)
+  {
+    ultimoAviso = aviso;
+    ultimaCritica = critica;
+    ultimoEstadoBomba = bombaLigada;
+
+    Serial.print("Aviso: ");
+    Serial.print(aviso);
+
+    Serial.print(" | Critica: ");
+    Serial.print(critica);
+
+    Serial.print(" | ");
+
+    if (bombaLigada == 0)
+    {
+      Serial.println("BOMBA DESLIGADA - NIVEL CRITICO");
+    }
+    else
+    {
+      if (aviso == AVISO_NIVEL_BAIXO)
+      {
+        Serial.println("BOMBA FUNCIONANDO - AVISO: NIVEL ABAIXANDO");
+      }
+      else
+      {
+        Serial.println("BOMBA FUNCIONANDO - NIVEL OK");
+      }
+    }
+  }
+
+  delay(100);
 }
